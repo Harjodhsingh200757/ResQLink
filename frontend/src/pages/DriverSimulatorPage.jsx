@@ -15,8 +15,10 @@ export default function DriverSimulatorPage() {
   const [activeTrip, setActiveTrip] = useState(null);
   const [activeRequest, setActiveRequest] = useState(null);
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [modalRequest, setModalRequest] = useState(null);
 
   const notifiedReqIdsRef = useRef(new Set());
+  const isInitialLoadRef = useRef(true);
 
   // Web Audio API Synthesizer Emergency Alert Tone
   const playEmergencySound = () => {
@@ -85,11 +87,18 @@ export default function DriverSimulatorPage() {
       const reqs = reqRes.data?.requests || [];
       setIncomingRequests(reqs);
 
-      // Trigger audio alert only once per NEW incoming request
-      const newReqs = reqs.filter(r => !notifiedReqIdsRef.current.has(r.id));
-      if (newReqs.length > 0) {
-        newReqs.forEach(r => notifiedReqIdsRef.current.add(r.id));
-        playEmergencySound();
+      if (isInitialLoadRef.current) {
+        // Baseline existing requests on initial mount/login (do not show popup or sound for pre-existing requests)
+        reqs.forEach(r => notifiedReqIdsRef.current.add(r.id));
+        isInitialLoadRef.current = false;
+      } else {
+        // Trigger popup and audio alert ONLY for newly created requests arriving after login/initial load
+        const newReqs = reqs.filter(r => !notifiedReqIdsRef.current.has(r.id));
+        if (newReqs.length > 0) {
+          newReqs.forEach(r => notifiedReqIdsRef.current.add(r.id));
+          playEmergencySound();
+          setModalRequest(newReqs[0]);
+        }
       }
     } catch (err) {
       console.error('Error fetching driver data:', err);
@@ -170,6 +179,9 @@ export default function DriverSimulatorPage() {
       const targetReq = incomingRequests.find((r) => r.id === reqId);
       setActiveRequest(targetReq);
       setStatus('EN_ROUTE');
+      if (modalRequest?.id === reqId) {
+        setModalRequest(null);
+      }
       fetchDriverData();
     } catch (err) {
       alert(err.message || 'Failed to accept request (may already be assigned to another driver).');
@@ -180,6 +192,9 @@ export default function DriverSimulatorPage() {
     try {
       await api.declineRequest(reqId);
       setIncomingRequests(prev => prev.filter(r => r.id !== reqId));
+      if (modalRequest?.id === reqId) {
+        setModalRequest(null);
+      }
       fetchDriverData();
     } catch (err) {
       alert(err.message || 'Failed to decline request.');
@@ -219,7 +234,7 @@ export default function DriverSimulatorPage() {
     }
   };
 
-  const currentModalRequest = incomingRequests.length > 0 && !activeTrip ? incomingRequests[0] : null;
+  const currentModalRequest = modalRequest && incomingRequests.some(r => r.id === modalRequest.id) && !activeTrip ? modalRequest : null;
 
   const renderStatusBadge = () => {
     if (!isOnDuty) {

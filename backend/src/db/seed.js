@@ -3,6 +3,11 @@ const db = require('./postgres');
 
 async function seedDatabase() {
   try {
+    if (process.env.NODE_ENV === 'production') {
+      console.log('🌱 Skipping automated seed in production environment (NODE_ENV=production).');
+      return;
+    }
+
     // Check if seeding is needed
     const userCheck = await db.query('SELECT COUNT(*) as count FROM users');
     const count = parseInt(userCheck.rows[0]?.count || 0, 10);
