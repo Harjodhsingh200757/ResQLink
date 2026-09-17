@@ -150,7 +150,15 @@ async function updateLocation(req, res, next) {
 
 async function getIncomingRequests(req, res, next) {
   try {
-    const { ambulance } = await getDriverAndAmbulance(req.user.id);
+    const { driver, ambulance } = await getDriverAndAmbulance(req.user.id);
+
+    // OFF DUTY DRIVERS MUST NOT RECEIVE ANY INCOMING EMERGENCY REQUESTS
+    if (!driver.is_on_duty || ambulance.status === 'OFF_DUTY') {
+      return res.status(200).json({
+        success: true,
+        data: { requests: [] }
+      });
+    }
 
     const result = await db.query(
       `SELECT r.*, u.name as patient_name
@@ -183,6 +191,13 @@ async function acceptRequest(req, res, next) {
 
     const { driver, ambulance } = await getDriverAndAmbulance(req.user.id);
 
+    if (!driver.is_on_duty || ambulance.status === 'OFF_DUTY') {
+      return res.status(403).json({
+        success: false,
+        error: { code: 'DRIVER_OFF_DUTY', message: 'You must be ON DUTY to accept emergency requests.' }
+      });
+    }
+
     const result = await dispatchService.acceptEmergencyRequest(requestId, driver.id, ambulance.id);
 
     return res.status(200).json({
@@ -202,6 +217,13 @@ async function rejectRequest(req, res, next) {
     }
 
     const { driver, ambulance } = await getDriverAndAmbulance(req.user.id);
+
+    if (!driver.is_on_duty || ambulance.status === 'OFF_DUTY') {
+      return res.status(403).json({
+        success: false,
+        error: { code: 'DRIVER_OFF_DUTY', message: 'You must be ON DUTY to decline emergency requests.' }
+      });
+    }
 
     const reqRes = await db.query('SELECT * FROM emergency_requests WHERE id = $1', [requestId]);
     if (!reqRes.rows || reqRes.rows.length === 0) {
