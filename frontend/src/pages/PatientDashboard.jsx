@@ -108,7 +108,7 @@ export default function PatientDashboard() {
                 </div>
                 <div>
                   <div className="text-base font-extrabold text-slate-900">
-                    Ambulance {activeBooking.vehicle_number || 'PB01AB1234'} ({activeBooking.ambulance_type || 'ADVANCED'})
+                    Ambulance {activeBooking.vehicle_number || 'Assigned Unit'} ({activeBooking.ambulance_type || 'ADVANCED'})
                   </div>
                   <div className="text-xs font-semibold text-slate-600 mt-0.5">
                     Driver: {activeBooking.driver_name || 'Assigned Driver'} • Request #{activeBooking.id}

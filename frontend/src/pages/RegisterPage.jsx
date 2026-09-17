@@ -145,7 +145,7 @@ export default function RegisterPage() {
                   required
                   value={vehicleNumber}
                   onChange={(e) => setVehicleNumber(e.target.value)}
-                  placeholder="E.g. PB01AB1234"
+                  placeholder="E.g. HR26AB1234"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium focus:ring-2 focus:ring-sky-500 uppercase"
                 />
               </div>

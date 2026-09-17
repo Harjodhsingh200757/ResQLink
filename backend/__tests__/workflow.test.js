@@ -48,6 +48,7 @@ describe('ResQLink Full Workflow & Security Audit Integration Tests', () => {
     patientToken = pRes.body.data.token;
 
     // Register Driver 1
+    const ts = Date.now().toString().slice(-4);
     const d1Res = await request(app)
       .post('/api/auth/register')
       .send({
@@ -57,9 +58,9 @@ describe('ResQLink Full Workflow & Security Audit Integration Tests', () => {
         role: 'DRIVER',
         licenseNumber: 'LIC-001',
         phone: '+91 98765 01991',
-        vehicleNumber: 'PB01AB0001'
+        vehicleNumber: `PB01AB1${ts}`
       });
-    driver1Token = d1Res.body.data.token;
+    driver1Token = d1Res.body.data?.token;
 
     // Register Driver 2
     const d2Res = await request(app)
@@ -71,7 +72,7 @@ describe('ResQLink Full Workflow & Security Audit Integration Tests', () => {
         role: 'DRIVER',
         licenseNumber: 'LIC-002',
         phone: '+91 98765 02992',
-        vehicleNumber: 'PB01AB0002'
+        vehicleNumber: `PB01AB2${ts}`
       });
     driver2Token = d2Res.body.data.token;
 
