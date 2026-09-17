@@ -5,6 +5,22 @@ ResQLink is a full-stack emergency ambulance availability and dispatch network. 
 
 ---
 
+## 🌐 Live Demo & Deployment
+
+- 🚀 **Frontend Application:** [Open ResQLink](https://resqlink-rosy.vercel.app/)
+- ⚙️ **Backend API:** [Open API](https://resqlink-eej6.onrender.com)
+
+### Deployment Stack
+
+- **Frontend:** Vercel — React + Vite + Leaflet
+- **Backend:** Render — Node.js + Express REST API
+- **Relational Database:** Neon PostgreSQL
+- **Document Database:** MongoDB Atlas — AI Analysis & Event Cache
+- **Interactive Mapping:** Leaflet + OpenStreetMap
+
+---
+
+
 ## 🌟 Key Features
 
 - ☀️ **Light-Theme First Design**: Modern, clean healthcare interface built with high-contrast slate surfaces, soft medical blue, subtle medical greens, and restrained emergency badges.
