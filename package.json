@@ -1,0 +1,22 @@
+{
+  "name": "resqlink",
+  "version": "1.0.0",
+  "description": "AI-Powered Real-Time Ambulance Availability & Dispatch Network",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "server": "node backend/src/server.js",
+    "seed": "node database/seed/seed.js",
+    "test": "npm --prefix backend test"
+  },
+  "keywords": [
+    "ambulance",
+    "dispatch",
+    "emergency",
+    "ai",
+    "leaflet",
+    "fullstack"
+  ],
+  "author": "ResQLink Engineering Team",
+  "license": "ISC"
+}
