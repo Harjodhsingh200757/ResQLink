@@ -99,9 +99,12 @@ async function getMyEmergencyRequests(req, res, next) {
     const result = await db.query(
       `SELECT r.*, 
               a.vehicle_number, a.ambulance_type, a.latitude as amb_lat, a.longitude as amb_lon, a.status as amb_status,
+              d.phone as driver_phone, u.name as driver_name,
               t.id as trip_id, t.status as trip_status, t.started_at, t.arrived_at, t.patient_picked_up_at, t.completed_at
        FROM emergency_requests r
        LEFT JOIN ambulances a ON r.assigned_ambulance_id = a.id
+       LEFT JOIN driver_profiles d ON a.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
        LEFT JOIN trips t ON t.request_id = r.id
        WHERE r.patient_id = $1
        ORDER BY r.created_at DESC`,

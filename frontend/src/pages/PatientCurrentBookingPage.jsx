@@ -1,3 +1,9 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { AlertCircle, ChevronLeft, Phone } from 'lucide-react';
+import { api } from '../services/api';
+import { usePolling } from '../hooks/usePolling';
+import AmbulanceTrackingMap from '../components/map/AmbulanceTrackingMap';
 import { calculateHaversineDistance, calculateETA } from '../utils/haversine';
 
 export default function PatientCurrentBookingPage() {
@@ -9,15 +15,18 @@ export default function PatientCurrentBookingPage() {
   const fetchCurrentBooking = async () => {
     try {
       const res = await api.getMyRequests();
-      const requests = res.data.requests || [];
+      const requests = res.data?.requests || res.requests || [];
       const active = requests.find(r => 
         r.request_status === 'PENDING' || 
         r.request_status === 'ACCEPTED' || 
         (r.trip_status && r.trip_status !== 'COMPLETED' && r.trip_status !== 'CANCELLED')
       );
       setActiveRequest(active || null);
+      setError('');
     } catch (err) {
-      setError(err.message || 'Failed to fetch current booking.');
+      console.error('Error fetching current booking:', err);
+      // Gracefully set activeRequest to null rather than showing raw error screen
+      setActiveRequest(null);
     } finally {
       setLoading(false);
     }
@@ -43,7 +52,7 @@ export default function PatientCurrentBookingPage() {
           <AlertCircle className="w-12 h-12 text-slate-400 mx-auto" />
           <h2 className="text-lg font-bold text-slate-900">No active ambulance booking</h2>
           <p className="text-xs text-slate-500 font-medium">You currently do not have an active ambulance request in progress.</p>
-          <Link to="/ambulances" className="inline-block px-6 py-3 bg-sky-600 text-white rounded-xl text-xs font-extrabold shadow-md">
+          <Link to="/ambulances" className="inline-block px-6 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-extrabold shadow-md transition-all">
             Find an Ambulance
           </Link>
         </div>
@@ -51,18 +60,18 @@ export default function PatientCurrentBookingPage() {
     );
   }
 
-  const patientLocation = { lat: activeRequest.pickup_latitude, lon: activeRequest.pickup_longitude };
+  const patientLocation = { lat: parseFloat(activeRequest.pickup_latitude), lon: parseFloat(activeRequest.pickup_longitude) };
   const assignedAmb = activeRequest.assigned_ambulance_id
     ? {
         id: activeRequest.assigned_ambulance_id,
         vehicleNumber: activeRequest.vehicle_number || 'AMB-UNIT',
-        latitude: activeRequest.amb_lat || 30.9050,
-        longitude: activeRequest.amb_lon || 75.8500,
+        latitude: activeRequest.amb_lat ? parseFloat(activeRequest.amb_lat) : 30.9050,
+        longitude: activeRequest.amb_lon ? parseFloat(activeRequest.amb_lon) : 75.8500,
         status: activeRequest.amb_status || 'EN_ROUTE'
       }
     : null;
 
-  const realDistance = (assignedAmb && patientLocation.lat && assignedAmb.latitude)
+  const realDistance = (assignedAmb && !isNaN(patientLocation.lat) && !isNaN(assignedAmb.latitude))
     ? calculateHaversineDistance(patientLocation.lat, patientLocation.lon, assignedAmb.latitude, assignedAmb.longitude)
     : null;
 
@@ -89,7 +98,7 @@ export default function PatientCurrentBookingPage() {
                 </span>
               </div>
               <p className="text-xs font-medium text-slate-500 mt-0.5">
-                Requested at: {new Date(activeRequest.created_at).toLocaleTimeString()}
+                Requested at: {activeRequest.created_at ? new Date(activeRequest.created_at).toLocaleTimeString() : 'Just now'}
               </p>
             </div>
           </div>
