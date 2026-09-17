@@ -56,7 +56,8 @@ describe('ResQLink Full Workflow & Security Audit Integration Tests', () => {
         password: 'password123',
         role: 'DRIVER',
         licenseNumber: 'LIC-001',
-        phone: '+91 98765 01991'
+        phone: '+91 98765 01991',
+        vehicleNumber: 'PB01AB0001'
       });
     driver1Token = d1Res.body.data.token;
 
@@ -69,7 +70,8 @@ describe('ResQLink Full Workflow & Security Audit Integration Tests', () => {
         password: 'password123',
         role: 'DRIVER',
         licenseNumber: 'LIC-002',
-        phone: '+91 98765 02992'
+        phone: '+91 98765 02992',
+        vehicleNumber: 'PB01AB0002'
       });
     driver2Token = d2Res.body.data.token;
 
@@ -290,7 +292,8 @@ describe('ResQLink Full Workflow & Security Audit Integration Tests', () => {
         password: 'password123',
         role: 'DRIVER',
         licenseNumber: `LIC-${Date.now().toString().slice(-6)}`,
-        phone: '+91 98765 99999'
+        phone: '+91 98765 99999',
+        vehicleNumber: `PB01AB${Date.now().toString().slice(-4)}`
       });
 
     expect(dRes.statusCode).toBe(201);

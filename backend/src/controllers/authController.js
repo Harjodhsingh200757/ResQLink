@@ -3,7 +3,7 @@ const db = require('../db/postgres');
 
 async function register(req, res, next) {
   try {
-    const { name, email, password, role, licenseNumber, phone } = req.body;
+    const { name, email, password, role, licenseNumber, phone, vehicleNumber, vehicle_number } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
@@ -13,7 +13,7 @@ async function register(req, res, next) {
     }
 
     const { user, token } = await authService.registerUser({
-      name, email, password, role, licenseNumber, phone
+      name, email, password, role, licenseNumber, phone, vehicleNumber: vehicleNumber || vehicle_number
     });
 
     return res.status(201).json({

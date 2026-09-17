@@ -99,6 +99,20 @@ class InMemorySqlEngine {
 
     let rows = [...(this.tables[tableName] || [])];
 
+    if (tableName === 'driver_profiles') {
+      rows = rows.map(r => {
+        const amb = (this.tables.ambulances || []).find(a => Number(a.driver_id) === Number(r.id));
+        return {
+          ...r,
+          ambulance_id: amb ? amb.id : null,
+          vehicle_number: amb ? amb.vehicle_number : null,
+          ambulance_status: amb ? amb.status : null,
+          latitude: amb ? amb.latitude : (r.latitude || 30.9009),
+          longitude: amb ? amb.longitude : (r.longitude || 75.8573)
+        };
+      });
+    }
+
     // Specific WHERE filters (order matters: check composite foreign key fields before generic 'id =')
     if (text.includes('WHERE')) {
       if (text.includes('email =') && params.length >= 1) {

@@ -9,6 +9,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('PATIENT');
+  const [phone, setPhone] = useState('');
+  const [vehicleNumber, setVehicleNumber] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -16,11 +18,34 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
 
+    if (role === 'DRIVER') {
+      if (!phone || !phone.trim() || phone.trim().length < 7) {
+        setError('Please enter a valid phone number (at least 7 digits).');
+        return;
+      }
+      if (!vehicleNumber || !vehicleNumber.trim() || vehicleNumber.trim().length < 3) {
+        setError('Please enter a valid ambulance vehicle number.');
+        return;
+      }
+    }
+
+    setLoading(true);
+
     try {
-      const user = await register({ name, email, password, role });
+      const payload = {
+        name,
+        email,
+        password,
+        role,
+        ...(role === 'DRIVER' ? {
+          phone: phone.trim(),
+          vehicleNumber: vehicleNumber.trim().toUpperCase()
+        } : {})
+      };
+
+      const user = await register(payload);
       if (user.role === 'DRIVER') navigate('/driver');
       else navigate('/dashboard');
     } catch (err) {
@@ -94,6 +119,38 @@ export default function RegisterPage() {
               <option value="DRIVER">DRIVER (Ambulance Responder)</option>
             </select>
           </div>
+
+          {role === 'DRIVER' && (
+            <>
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  Driver Phone Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+91 98765 43210"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium focus:ring-2 focus:ring-sky-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                  Ambulance Vehicle Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={vehicleNumber}
+                  onChange={(e) => setVehicleNumber(e.target.value)}
+                  placeholder="E.g. PB01AB1234"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium focus:ring-2 focus:ring-sky-500 uppercase"
+                />
+              </div>
+            </>
+          )}
 
           <button
             type="submit"
