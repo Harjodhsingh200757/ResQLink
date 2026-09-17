@@ -5,10 +5,12 @@ const config = require('../src/config/env');
 const { initDb } = require('../src/db/postgres');
 const { initMongo } = require('../src/db/mongodb');
 
+jest.setTimeout(30000);
+
 beforeAll(async () => {
   await initDb();
   await initMongo();
-});
+}, 30000);
 
 describe('ResQLink Full Workflow & Security Audit Integration Tests', () => {
   let patientToken = '';

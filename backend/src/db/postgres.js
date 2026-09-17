@@ -173,10 +173,17 @@ class InMemorySqlEngine {
 
 async function initDb() {
   try {
-    pool = new Pool({
+    const poolOptions = {
       connectionString: config.databaseUrl,
-      connectionTimeoutMillis: 2000
-    });
+      connectionTimeoutMillis: 10000
+    };
+
+    // Configure SSL for remote Neon PostgreSQL or connections requesting SSL
+    if (config.databaseUrl && (config.databaseUrl.includes('neon.tech') || config.databaseUrl.includes('sslmode=') || process.env.DB_SSL === 'true')) {
+      poolOptions.ssl = { rejectUnauthorized: false };
+    }
+
+    pool = new Pool(poolOptions);
 
     // Test Postgres connection & run DDL migrations
     const client = await pool.connect();
